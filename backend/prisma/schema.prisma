@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  // To switch to PostgreSQL, change provider to "postgresql" and set DATABASE_URL in .env
-  provider = "sqlite"
+  // Configured for cloud PostgreSQL deployment
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
