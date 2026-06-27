@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // To switch to PostgreSQL, change provider to "postgresql" and set DATABASE_URL in .env
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  role         String       // "CONTRACTOR", "STAFF", "ADMIN"
+  avatarUrl    String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  
+  evaluations  Evaluation[]
+  auditLogs    AuditLog[]
+  notifications Notification[]
+}
+
+model Contractor {
+  id                 String              @id @default(uuid())
+  applicationId      String              @unique // Format: AKIPL-YYYY-XXXXX
+  companyName        String
+  regNo              String
+  pan                String
+  gst                String
+  address            String
+  city               String
+  state              String
+  pincode            String
+  website            String?
+  description        String?
+  status             String              @default("Draft") // "Draft", "Submitted", "Under Review", "Technical Evaluation", "Financial Check", "Approved", "Rejected", "Resubmit Required"
+  submittedAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  technicalDetails   TechnicalDetail?
+  financialDetails   FinancialDetail?
+  projectReferences  ProjectReference[]
+  documents          Document[]
+  evaluations        Evaluation[]
+}
+
+model TechnicalDetail {
+  id              String     @id @default(uuid())
+  contractorId    String     @unique
+  contractor      Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  categories      String     // Comma-separated list or JSON array of strings
+  maxCapacity     Int
+  currentProjects Int
+  teamStrength    Int
+  certifications  String     // Comma-separated list or JSON array of strings
+  safetyScore     Int        // 0-100
+  equipment       String     // JSON array of equipment object rows: [{name, qty, condition}]
+}
+
+model FinancialDetail {
+  id              String     @id @default(uuid())
+  contractorId    String     @unique
+  contractor      Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  turnoverY1      Float      // Year 1 (most recent)
+  turnoverY2      Float      // Year 2
+  turnoverY3      Float      // Year 3
+  netWorth        Float
+  liabilities     Float
+  bankName        String
+  bankAccountType String
+  creditRating    String
+  emdCapability   Float
+  blacklistStatus String     // "Yes", "No"
+  blacklistReason String?
+}
+
+model ProjectReference {
+  id             String     @id @default(uuid())
+  contractorId   String
+  contractor     Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  projectName    String
+  clientName     String
+  contractValue  Float
+  startDate      String
+  endDate        String
+  type           String     // Project type / category
+  status         String     // "Completed", "In Progress"
+  clientContact  String     // Email or Phone
+  description    String?
+}
+
+model Document {
+  id           String     @id @default(uuid())
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  docType      String     // "Registration", "GST", "PAN", "BalanceSheet", "WorkOrder", "BankSolvency"
+  fileName     String
+  fileUrl      String
+  uploadedAt   DateTime   @default(now())
+  verified     Boolean    @default(false)
+}
+
+model Evaluation {
+  id             String     @id @default(uuid())
+  contractorId   String
+  contractor     Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  reviewerId     String
+  reviewer       User       @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  technicalScore Float
+  financialScore Float
+  referenceScore Float
+  overallScore   Float      // (technical * 0.40) + (financial * 0.35) + (references * 0.25)
+  notes          String?
+  status         String     // Evaluation decision status
+  evaluatedAt    DateTime   @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "info", "warning", "success", "error"
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  entityId  String?  // Linked Contractor / Application ID
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action     String   // e.g. "LOGIN", "SUBMIT_APPLICATION", "EVALUATE_VENDOR", "UPDATE_SETTINGS"
+  entityType String   // e.g. "USER", "CONTRACTOR", "EVALUATION"
+  entityId   String?
+  oldValue   String?
+  newValue   String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}
