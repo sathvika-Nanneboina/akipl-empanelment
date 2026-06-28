@@ -17,6 +17,7 @@ export default function Login({ onLoginSuccess }) {
   // Sign up state variables
   const [isSignUp, setIsSignUp] = useState(false);
   const [signupName, setSignupName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Clear errors on role or view change
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function Login({ onLoginSuccess }) {
     setIsSignUp(!isSignUp);
     setEmail('');
     setPassword('');
+    setConfirmPassword('');
     setSignupName('');
     setError('');
   };
@@ -58,8 +60,12 @@ export default function Login({ onLoginSuccess }) {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    if (!signupName || !email || !password) {
+    if (!signupName || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
@@ -199,6 +205,20 @@ export default function Login({ onLoginSuccess }) {
               </div>
             </div>
 
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Confirm Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
+                />
+              </div>
+            </div>
+
             <motion.button
               type="submit"
               disabled={loading}
@@ -331,7 +351,7 @@ export default function Login({ onLoginSuccess }) {
                   onClick={toggleForm}
                   className="text-xs font-bold text-accent hover:text-accent-dark transition-colors"
                 >
-                  New Contractor? Register here
+                  Don't have an account? Sign Up here
                 </button>
               </div>
             </form>
