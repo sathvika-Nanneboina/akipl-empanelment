@@ -369,14 +369,167 @@ async function main() {
       isBlacklisted: 'No'
     },
     {
-      companyName: 'Swastik Air Systems',
-      status: 'Financial Check',
+      companyName: 'Bharati Infrastructure Ltd',
+      status: 'Approved',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      category: 'Civil Works',
+      turnover: 145000000,
+      safetyScore: 95,
+      evaluation: { tech: 90, fin: 88, ref: 92 },
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'PowerGrid Tech System',
+      status: 'Technical Evaluation',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      category: 'Electrical Systems',
+      turnover: 72000000,
+      safetyScore: 85,
+      evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Deccan Civil Builders',
+      status: 'Submitted',
+      city: 'Vijayawada',
+      state: 'Andhra Pradesh',
+      category: 'Civil Works',
+      turnover: 35000000,
+      safetyScore: 80,
+      evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Southern HVAC Corporation',
+      status: 'Under Review',
       city: 'Chennai',
       state: 'Tamil Nadu',
       category: 'HVAC & Mechanical',
-      turnover: 76000000,
-      safetyScore: 87,
+      turnover: 88000000,
+      safetyScore: 89,
       evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Maruthi Fab & Erectors',
+      status: 'Rejected',
+      city: 'Pune',
+      state: 'Maharashtra',
+      category: 'Structural Steel',
+      turnover: 52000000,
+      safetyScore: 70,
+      evaluation: { tech: 60, fin: 55, ref: 62 },
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Nirma Paving & Roads',
+      status: 'Draft',
+      city: 'Warangal',
+      state: 'Telangana',
+      category: 'Roads & Paving',
+      turnover: 28000000,
+      safetyScore: 78,
+      evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Elegant Home Fit-outs',
+      status: 'Approved',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      category: 'Interior & Fit-out',
+      turnover: 65000000,
+      safetyScore: 91,
+      evaluation: { tech: 86, fin: 84, ref: 88 },
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Ravi Excavations',
+      status: 'Approved',
+      city: 'Tirupati',
+      state: 'Andhra Pradesh',
+      category: 'Roads & Paving',
+      turnover: 49000000,
+      safetyScore: 86,
+      evaluation: { tech: 80, fin: 82, ref: 84 },
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Trishul Steel Structures',
+      status: 'Financial Check',
+      city: 'Vijayawada',
+      state: 'Andhra Pradesh',
+      category: 'Structural Steel',
+      turnover: 92000000,
+      safetyScore: 83,
+      evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'VoltMaster Services',
+      status: 'Draft',
+      city: 'Mysore',
+      state: 'Karnataka',
+      category: 'Electrical Systems',
+      turnover: 21000000,
+      safetyScore: 80,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Supreme Air Controls',
+      status: 'Approved',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      category: 'HVAC & Mechanical',
+      turnover: 110000000,
+      safetyScore: 92,
+      evaluation: { tech: 88, fin: 90, ref: 86 },
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Apex Pipeline Experts',
+      status: 'Technical Evaluation',
+      city: 'Chennai',
+      state: 'Tamil Nadu',
+      category: 'Plumbing & Piping',
+      turnover: 39000000,
+      safetyScore: 84,
+      evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Rayalaseema Builders',
+      status: 'Rejected',
+      city: 'Tirupati',
+      state: 'Andhra Pradesh',
+      category: 'Civil Works',
+      turnover: 41000000,
+      safetyScore: 68,
+      evaluation: { tech: 58, fin: 62, ref: 60 },
+      isBlacklisted: 'Yes'
+    },
+    {
+      companyName: 'Zenith Fitout Interiors',
+      status: 'Submitted',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      category: 'Interior & Fit-out',
+      turnover: 31000000,
+      safetyScore: 85,
+      evaluation: null,
+      isBlacklisted: 'No'
+    },
+    {
+      companyName: 'Elite Engineering Works',
+      status: 'Approved',
+      city: 'Pune',
+      state: 'Maharashtra',
+      category: 'HVAC & Mechanical',
+      turnover: 125000000,
+      safetyScore: 94,
+      evaluation: { tech: 92, fin: 88, ref: 90 },
       isBlacklisted: 'No'
     }
   ];
