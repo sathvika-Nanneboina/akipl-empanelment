@@ -257,8 +257,20 @@ export default function Login({ onLoginSuccess }) {
             </div>
           </form>
         ) : (
-          /* Login Form */
-          <>
+            {/* Role Selector Dropdown */}
+            <div className="mb-6 space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Choose Portal Access</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm bg-slate-50 focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors font-semibold cursor-pointer"
+              >
+                <option value="CONTRACTOR">Contractor Portal</option>
+                <option value="STAFF">Staff Reviewer Portal</option>
+                <option value="ADMIN">System Administrator Portal</option>
+              </select>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <AnimatePresence mode="wait">
                 {error && (
@@ -325,7 +337,7 @@ export default function Login({ onLoginSuccess }) {
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  'Access Portal'
+                  `Access Portal as ${role.charAt(0) + role.slice(1).toLowerCase()}`
                 )}
               </motion.button>
 
