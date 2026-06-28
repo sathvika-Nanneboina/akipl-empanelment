@@ -245,34 +245,18 @@ export default function Login({ onLoginSuccess }) {
         ) : (
           /* Login Form */
           <>
-            {/* Role Selector Buttons */}
-            <div className="mb-6">
-              <label className="text-xs font-bold text-slate-400 uppercase block mb-3 text-left">Choose Portal Access</label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: 'CONTRACTOR', label: 'Contractor', icon: User },
-                  { id: 'STAFF', label: 'Staff', icon: Users },
-                  { id: 'ADMIN', label: 'Admin', icon: ShieldAlert }
-                ].map((btn) => {
-                  const Icon = btn.icon;
-                  const isSelected = role === btn.id;
-                  return (
-                    <button
-                      key={btn.id}
-                      type="button"
-                      onClick={() => setRole(btn.id)}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                        isSelected 
-                          ? 'bg-accent border-accent-dark text-white shadow-md' 
-                          : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 ${isSelected ? 'text-accent' : 'text-slate-400'}`} />
-                      {btn.label}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Role Selector Dropdown */}
+            <div className="mb-6 space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Choose Portal Access</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm bg-slate-50 focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors font-semibold cursor-pointer"
+              >
+                <option value="CONTRACTOR">Contractor Portal</option>
+                <option value="STAFF">Staff Reviewer Portal</option>
+                <option value="ADMIN">System Administrator Portal</option>
+              </select>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
