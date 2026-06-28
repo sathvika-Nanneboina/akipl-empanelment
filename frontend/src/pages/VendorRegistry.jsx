@@ -24,11 +24,30 @@ export default function VendorRegistry() {
   const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
-    loadVendors();
+    loadVendors(false);
   }, [search, category, city, rating]);
 
-  const loadVendors = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadVendors(true);
+      if (selectedVendorId) {
+        refreshVendorDetail(selectedVendorId);
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [selectedVendorId, search, category, city, rating]);
+
+  const refreshVendorDetail = async (id) => {
+    try {
+      const details = await api.getApplicationById(id);
+      setVendorDetail(details);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadVendors = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const params = {
         ...(search && { search }),
@@ -41,7 +60,7 @@ export default function VendorRegistry() {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 

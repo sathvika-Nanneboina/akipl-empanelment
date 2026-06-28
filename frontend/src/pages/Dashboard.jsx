@@ -23,11 +23,15 @@ export default function Dashboard({ setCurrentTab }) {
   const [recentActivities, setRecentActivities] = useState([]);
 
   useEffect(() => {
-    loadDashboardData();
+    loadDashboardData(false);
+    const interval = setInterval(() => {
+      loadDashboardData(true);
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
-  const loadDashboardData = async () => {
-    setLoading(true);
+  const loadDashboardData = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const [sumRes, trendRes, scoreRes, logsRes] = await Promise.all([
         api.getAnalyticsSummary(),
@@ -43,7 +47,7 @@ export default function Dashboard({ setCurrentTab }) {
     } catch (e) {
       console.error('Failed to load dashboard statistics', e);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 

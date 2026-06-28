@@ -23,11 +23,15 @@ export default function VendorPortal({ setCurrentTab }) {
   const [renewalLoading, setRenewalLoading] = useState(false);
 
   useEffect(() => {
-    loadContractorData();
+    loadContractorData(false);
+    const interval = setInterval(() => {
+      loadContractorData(true);
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
-  const loadContractorData = async () => {
-    setLoading(true);
+  const loadContractorData = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const user = api.getCurrentUser();
       
@@ -64,7 +68,7 @@ export default function VendorPortal({ setCurrentTab }) {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 

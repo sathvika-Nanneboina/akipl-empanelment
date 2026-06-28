@@ -43,8 +43,18 @@ export default function StaffReviewPanel() {
   const [auditLogs, setAuditLogs] = useState([]);
 
   useEffect(() => {
-    loadApplications();
+    loadApplications(false);
   }, [search, status, category, minScore, maxScore, page]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadApplications(true);
+      if (selectedAppId) {
+        refreshApplicationDetail(selectedAppId);
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [selectedAppId, search, status, category, minScore, maxScore, page]);
 
   useEffect(() => {
     // Check if an application is selected via notification click
@@ -67,8 +77,19 @@ export default function StaffReviewPanel() {
     } catch (e) {}
   };
 
-  const loadApplications = async () => {
-    setLoading(true);
+  const refreshApplicationDetail = async (id) => {
+    try {
+      const details = await api.getApplicationById(id);
+      setApplicationDetail(details);
+      const logs = await api.getAuditTrail(id);
+      setAuditLogs(logs);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadApplications = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const params = {
         page,
@@ -85,7 +106,7 @@ export default function StaffReviewPanel() {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 
