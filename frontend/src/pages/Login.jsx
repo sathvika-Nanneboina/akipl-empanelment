@@ -257,6 +257,7 @@ export default function Login({ onLoginSuccess }) {
             </div>
           </form>
         ) : (
+          <>
             {/* Role Selector Dropdown */}
             <div className="mb-6 space-y-1.5 text-left">
               <label className="text-xs font-bold text-slate-400 uppercase">Choose Portal Access</label>
