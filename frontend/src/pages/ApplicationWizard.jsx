@@ -150,6 +150,14 @@ export default function ApplicationWizard({ setCurrentTab }) {
     try {
       const data = await api.getApplicationById(id);
       
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.role === 'CONTRACTOR') {
+        const isOwner = data.userId === user.id || data.companyName === user.name;
+        if (!isOwner) {
+          throw new Error('Unauthorized application access');
+        }
+      }
+      
       // Parse JSON database arrays
       let parsedCategories = [];
       let parsedEquipment = [];
