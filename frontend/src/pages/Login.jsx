@@ -6,7 +6,7 @@ import { api } from '../utils/api';
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('STAFF');
+  const [role, setRole] = useState('CONTRACTOR');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -219,6 +219,20 @@ export default function Login({ onLoginSuccess }) {
               </div>
             </div>
 
+            {/* Role Selector Dropdown - Signup Only */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Select Access Portal</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm bg-slate-50 focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors font-semibold cursor-pointer"
+              >
+                <option value="CONTRACTOR">Contractor Portal</option>
+                <option value="STAFF">Staff Reviewer Portal</option>
+                <option value="ADMIN">System Administrator Portal</option>
+              </select>
+            </div>
+
             <motion.button
               type="submit"
               disabled={loading}
@@ -245,20 +259,6 @@ export default function Login({ onLoginSuccess }) {
         ) : (
           /* Login Form */
           <>
-            {/* Role Selector Dropdown */}
-            <div className="mb-6 space-y-1.5 text-left">
-              <label className="text-xs font-bold text-slate-400 uppercase">Choose Portal Access</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm bg-slate-50 focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors font-semibold cursor-pointer"
-              >
-                <option value="CONTRACTOR">Contractor Portal</option>
-                <option value="STAFF">Staff Reviewer Portal</option>
-                <option value="ADMIN">System Administrator Portal</option>
-              </select>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <AnimatePresence mode="wait">
                 {error && (
@@ -280,7 +280,7 @@ export default function Login({ onLoginSuccess }) {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. staff@akipl.com"
+                  placeholder="e.g. name@company.com"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
                 />
               </div>
@@ -325,7 +325,7 @@ export default function Login({ onLoginSuccess }) {
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  `Access Portal as ${role.charAt(0) + role.slice(1).toLowerCase()}`
+                  'Access Portal'
                 )}
               </motion.button>
 

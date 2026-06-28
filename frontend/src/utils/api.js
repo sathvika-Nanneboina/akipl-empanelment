@@ -20,11 +20,11 @@ const apiFetch = async (url, options = {}) => {
 
 export const api = {
   // Authentication
-  register: async (name, email, password) => {
+  register: async (name, email, password, role) => {
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, password, role })
     });
     if (!res.ok) {
       const err = await res.json();

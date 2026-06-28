@@ -222,9 +222,14 @@ const calculateSuggestedScores = (contractor) => {
 // ==========================================
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Name, email, and password are required.' });
+  }
+
+  const chosenRole = (role || 'CONTRACTOR').toUpperCase();
+  if (!['CONTRACTOR', 'STAFF', 'ADMIN'].includes(chosenRole)) {
+    return res.status(400).json({ message: 'Invalid role selection.' });
   }
 
   try {
@@ -241,7 +246,7 @@ app.post('/api/auth/register', async (req, res) => {
         name,
         email,
         passwordHash,
-        role: 'CONTRACTOR',
+        role: chosenRole,
         isActive: true
       }
     });
