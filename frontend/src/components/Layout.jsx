@@ -34,7 +34,7 @@ const getAvatarUrl = (url) => {
 
 export default function Layout({ children, currentTab, setCurrentTab }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => api.getCurrentUser());
   const [notifications, setNotifications] = useState([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

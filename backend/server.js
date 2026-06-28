@@ -614,7 +614,7 @@ app.post('/api/applications', authenticateToken, async (req, res) => {
 
     const newContractor = await prisma.contractor.create({
       data: {
-        userId: req.user.id,
+        userId: req.user.role === 'CONTRACTOR' ? req.user.id : null,
         applicationId: newAppId,
         companyName: data.companyName || (req.user.role === 'CONTRACTOR' ? req.user.name : 'Draft Company'),
         regNo: data.regNo || '',
