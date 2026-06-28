@@ -6,7 +6,7 @@ import { api } from '../utils/api';
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('STAFF'); // Default role selector
+  const [role, setRole] = useState('STAFF');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -14,20 +14,22 @@ export default function Login({ onLoginSuccess }) {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState(false);
 
-  // Pre-fill email defaults for easy demo login
+  // Sign up state variables
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [signupName, setSignupName] = useState('');
+
+  // Clear errors on role or view change
   useEffect(() => {
-    if (role === 'ADMIN') {
-      setEmail('admin@akipl.com');
-      setPassword('admin123');
-    } else if (role === 'STAFF') {
-      setEmail('staff@akipl.com');
-      setPassword('staff123');
-    } else {
-      setEmail('contractor@akipl.com');
-      setPassword('contractor123');
-    }
     setError('');
-  }, [role]);
+  }, [role, isSignUp]);
+
+  const toggleForm = () => {
+    setIsSignUp(!isSignUp);
+    setEmail('');
+    setPassword('');
+    setSignupName('');
+    setError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +43,6 @@ export default function Login({ onLoginSuccess }) {
 
     try {
       const data = await api.login(email, password);
-      // Double check role alignment
       if (data.user.role !== role) {
         setError(`Warning: Login successful but role is registered as ${data.user.role}. Proceeding...`);
       }
@@ -50,6 +51,28 @@ export default function Login({ onLoginSuccess }) {
       }, 500);
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (!signupName || !email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await api.register(signupName, email, password);
+      setTimeout(() => {
+        onLoginSuccess(data.user);
+      }, 500);
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -112,107 +135,208 @@ export default function Login({ onLoginSuccess }) {
           </motion.p>
         </div>
 
-        {/* Role Selector Buttons */}
-        <div className="mb-6">
-          <label className="text-xs font-bold text-slate-400 uppercase block mb-3 text-left">Choose Portal Access</label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'CONTRACTOR', label: 'Contractor', icon: User },
-              { id: 'STAFF', label: 'Staff', icon: Users },
-              { id: 'ADMIN', label: 'Admin', icon: ShieldAlert }
-            ].map((btn) => {
-              const Icon = btn.icon;
-              const isSelected = role === btn.id;
-              return (
-                <button
-                  key={btn.id}
-                  type="button"
-                  onClick={() => setRole(btn.id)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                    isSelected 
-                      ? 'bg-accent border-accent-dark text-white shadow-md' 
-                      : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
-                  }`}
+        {isSignUp ? (
+          /* Sign Up Form */
+          <form onSubmit={handleRegisterSubmit} className="space-y-4">
+            <h3 className="text-sm font-bold text-slate-800 text-left uppercase mb-1">Contractor Sign Up</h3>
+            <p className="text-xs text-slate-400 text-left mb-4">Register your company profile to apply for pre-qualification.</p>
+
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div 
+                  className="bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs p-3 rounded-r-lg text-left"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
                 >
-                  <Icon className={`w-4 h-4 ${isSelected ? 'text-accent' : 'text-slate-400'}`} />
-                  {btn.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <AnimatePresence mode="wait">
-            {error && (
-              <motion.div 
-                className="bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs p-3 rounded-r-lg text-left"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-              >
-                {error}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. staff@akipl.com"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
-            />
-          </div>
-
-          <div className="space-y-1.5 text-left relative">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-slate-400 uppercase">Password</label>
-              <button
-                type="button"
-                onClick={() => setShowForgotModal(true)}
-                className="text-xs font-semibold text-accent hover:text-accent-dark transition-colors"
-              >
-                Forgot Password?
-              </button>
-            </div>
-            <div className="relative">
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Company Name / Name</label>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type="text"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
+                value={signupName}
+                onChange={(e) => setSignupName(e.target.value)}
+                placeholder="e.g. Apex Civil Constructors Ltd"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
               />
+            </div>
+
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. contractor@company.com"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-bold text-slate-400 uppercase">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-1/2 -translate-y-1/2 right-3 p-1.5 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
+              </div>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-accent hover:bg-accent-dark disabled:bg-slate-300 text-white py-3 rounded-xl font-semibold shadow-lg shadow-accent/20 text-sm transition-all flex items-center justify-center"
+              whileTap={{ scale: 0.98 }}
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'Register & Create Profile'
+              )}
+            </motion.button>
+
+            <div className="mt-4 text-center">
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-1/2 -translate-y-1/2 right-3 p-1.5 text-slate-400 hover:text-slate-600"
+                onClick={toggleForm}
+                className="text-xs font-bold text-accent hover:text-accent-dark transition-colors"
               >
-                {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                Already have an account? Sign In
               </button>
             </div>
-          </div>
+          </form>
+        ) : (
+          /* Login Form */
+          <>
+            {/* Role Selector Buttons */}
+            <div className="mb-6">
+              <label className="text-xs font-bold text-slate-400 uppercase block mb-3 text-left">Choose Portal Access</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'CONTRACTOR', label: 'Contractor', icon: User },
+                  { id: 'STAFF', label: 'Staff', icon: Users },
+                  { id: 'ADMIN', label: 'Admin', icon: ShieldAlert }
+                ].map((btn) => {
+                  const Icon = btn.icon;
+                  const isSelected = role === btn.id;
+                  return (
+                    <button
+                      key={btn.id}
+                      type="button"
+                      onClick={() => setRole(btn.id)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                        isSelected 
+                          ? 'bg-accent border-accent-dark text-white shadow-md' 
+                          : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isSelected ? 'text-accent' : 'text-slate-400'}`} />
+                      {btn.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          {/* Submit button */}
-          <motion.button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-accent hover:bg-accent-dark disabled:bg-slate-300 text-white py-3 rounded-xl font-semibold shadow-lg shadow-accent/20 text-sm transition-all flex items-center justify-center"
-            whileTap={{ scale: 0.98 }}
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              `Access Portal as ${role.charAt(0) + role.slice(1).toLowerCase()}`
-            )}
-          </motion.button>
-        </form>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <AnimatePresence mode="wait">
+                {error && (
+                  <motion.div 
+                    className="bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs p-3 rounded-r-lg text-left"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                  >
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="space-y-1.5 text-left">
+                <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. staff@akipl.com"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5 text-left relative">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs font-semibold text-accent hover:text-accent-dark transition-colors"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-primary-light focus:ring-1 focus:ring-slate-800 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-1/2 -translate-y-1/2 right-3 p-1.5 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <motion.button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-accent hover:bg-accent-dark disabled:bg-slate-300 text-white py-3 rounded-xl font-semibold shadow-lg shadow-accent/20 text-sm transition-all flex items-center justify-center"
+                whileTap={{ scale: 0.98 }}
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  `Access Portal as ${role.charAt(0) + role.slice(1).toLowerCase()}`
+                )}
+              </motion.button>
+
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={toggleForm}
+                  className="text-xs font-bold text-accent hover:text-accent-dark transition-colors"
+                >
+                  New Contractor? Register here
+                </button>
+              </div>
+            </form>
+          </>
+        )}
 
         <div className="mt-8 text-center">
           <span className="text-xs text-slate-400">© 2026 AVINASH KANAPARTHI INFRA PRIVATE LIMITED.</span>

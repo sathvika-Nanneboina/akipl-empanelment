@@ -20,6 +20,23 @@ const apiFetch = async (url, options = {}) => {
 
 export const api = {
   // Authentication
+  register: async (name, email, password) => {
+    const res = await fetch(`${BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Registration failed');
+    }
+    const data = await res.json();
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.removeItem('contractorProfileId');
+    return data;
+  },
+
   login: async (email, password) => {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
