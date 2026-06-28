@@ -28,6 +28,7 @@ model User {
 
 model Contractor {
   id                 String              @id @default(uuid())
+  userId             String?             // Link to the User who created this application
   applicationId      String              @unique // Format: AKIPL-YYYY-XXXXX
   companyName        String
   regNo              String

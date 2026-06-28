@@ -398,7 +398,10 @@ app.get('/api/applications', authenticateToken, authorizeRoles('STAFF', 'ADMIN',
     let whereClause = {};
 
     if (req.user.role === 'CONTRACTOR') {
-      whereClause.companyName = req.user.name;
+      whereClause.OR = [
+        { userId: req.user.id },
+        { companyName: req.user.name }
+      ];
     } else {
       if (status) {
         whereClause.status = status;
@@ -515,10 +518,9 @@ app.get('/api/applications/:id', authenticateToken, async (req, res) => {
     }
 
     // Security: Contractors can only view their own profile
-    if (req.user.role === 'CONTRACTOR' && req.user.name !== application.companyName) {
-      // Find if email matches the contractor's website/domain as fallback
-      const domainName = req.user.email.split('@')[0];
-      if (!application.website?.includes(domainName)) {
+    if (req.user.role === 'CONTRACTOR') {
+      const isOwner = application.userId === req.user.id || req.user.name === application.companyName || application.website?.includes(req.user.email.split('@')[0]);
+      if (!isOwner) {
         return res.status(403).json({ message: 'Access denied' });
       }
     }
@@ -559,6 +561,7 @@ app.post('/api/applications', authenticateToken, async (req, res) => {
 
     const newContractor = await prisma.contractor.create({
       data: {
+        userId: req.user.id,
         applicationId: newAppId,
         companyName: data.companyName || (req.user.role === 'CONTRACTOR' ? req.user.name : 'Draft Company'),
         regNo: data.regNo || '',
@@ -600,8 +603,11 @@ app.put('/api/applications/:id', authenticateToken, async (req, res) => {
     }
 
     // Security: Contractors can only modify their own profile
-    if (req.user.role === 'CONTRACTOR' && req.user.name !== existing.companyName) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (req.user.role === 'CONTRACTOR') {
+      const isOwner = existing.userId === req.user.id || req.user.name === existing.companyName;
+      if (!isOwner) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
 
     // Handle updates to core details
@@ -837,8 +843,11 @@ app.post('/api/applications/:id/documents', authenticateToken, upload.single('fi
       return res.status(404).json({ message: 'Contractor not found' });
     }
 
-    if (req.user.role === 'CONTRACTOR' && req.user.name !== contractor.companyName) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (req.user.role === 'CONTRACTOR') {
+      const isOwner = contractor.userId === req.user.id || req.user.name === contractor.companyName;
+      if (!isOwner) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
 
     const doc = await prisma.document.create({
@@ -1531,6 +1540,13 @@ app.post('/api/applications/:id/re-empanel', authenticateToken, async (req, res)
       return res.status(400).json({ message: 'Only approved empanelled contractors can apply for renewal/re-empanelment.' });
     }
 
+    if (req.user.role === 'CONTRACTOR') {
+      const isOwner = existing.userId === req.user.id || req.user.name === existing.companyName;
+      if (!isOwner) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+    }
+
     // Generate new sequential ID
     const currentYear = new Date().getFullYear();
     const lastContractor = await prisma.contractor.findFirst({
@@ -1551,6 +1567,7 @@ app.post('/api/applications/:id/re-empanel', authenticateToken, async (req, res)
     // Create a new clone application in draft status prefilled with previous data
     const clone = await prisma.contractor.create({
       data: {
+        userId: req.user.id,
         applicationId: newAppId,
         companyName: existing.companyName,
         regNo: existing.regNo,

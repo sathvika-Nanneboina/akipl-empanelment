@@ -208,7 +208,10 @@ export default function ApplicationWizard({ setCurrentTab }) {
         documents: data.documents || []
       });
     } catch (e) {
-      console.error(e);
+      console.error('Failed to load draft details, clearing stale ID and creating new draft:', e);
+      localStorage.removeItem('selectedApplicationId');
+      setAppId(null);
+      createNewDraft();
     } finally {
       setLoading(false);
     }
@@ -418,7 +421,12 @@ export default function ApplicationWizard({ setCurrentTab }) {
             });
           }, 1000);
         } catch (e) {
-          alert('Upload failed');
+          alert('Upload failed: ' + (e.message || 'Unknown error'));
+          setUploadingDoc(prev => {
+            const copy = { ...prev };
+            delete copy[docType];
+            return copy;
+          });
         }
       } else {
         setUploadingDoc(prev => ({ ...prev, [docType]: progress }));
