@@ -545,7 +545,12 @@ app.post('/api/applications', authenticateToken, async (req, res) => {
     // Generate new unique sequential ID
     const currentYear = new Date().getFullYear();
     const lastContractor = await prisma.contractor.findFirst({
-      orderBy: { createdAt: 'desc' }
+      where: {
+        applicationId: {
+          startsWith: `AKIPL-${currentYear}`
+        }
+      },
+      orderBy: { applicationId: 'desc' }
     });
 
     let sequentialNum = 1;
@@ -1550,7 +1555,12 @@ app.post('/api/applications/:id/re-empanel', authenticateToken, async (req, res)
     // Generate new sequential ID
     const currentYear = new Date().getFullYear();
     const lastContractor = await prisma.contractor.findFirst({
-      orderBy: { createdAt: 'desc' }
+      where: {
+        applicationId: {
+          startsWith: `AKIPL-${currentYear}`
+        }
+      },
+      orderBy: { applicationId: 'desc' }
     });
 
     let sequentialNum = 1;
